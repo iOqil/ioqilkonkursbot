@@ -67,8 +67,6 @@ async def cmd_start(message: types.Message, db: AsyncSession, bot):
                     await bot.send_message(user.referrer_id, f"🎉 Yangi taklif! Sizga {message.from_user.first_name} orqali 50 ball berildi.")
                 except: pass
 
-    # 3. Add Admin Panel button if user is admin
-    kb = main_menu_kb(user_id)
     # 3. Handle Admin Panel
     if user_id in settings.admin_list:
         admin_kb = types.InlineKeyboardMarkup(inline_keyboard=[
@@ -77,6 +75,19 @@ async def cmd_start(message: types.Message, db: AsyncSession, bot):
         await message.answer(f"Siz adminsiz! Boshqaruv paneliga kirishingiz mumkin:", reply_markup=admin_kb)
 
     await message.answer(f"Konkurs platformasiga xush kelibsiz, {message.from_user.first_name}! 🚀\nSizning balingiz: {user.score} ball", reply_markup=main_menu_kb())
+
+@router.callback_query(F.data == "check_sub")
+async def callback_check_sub(callback: types.CallbackQuery, db: AsyncSession, bot):
+    subscribed = await check_channels(bot, callback.from_user.id)
+    if subscribed:
+        await callback.answer("✅ Siz muvaffaqiyatli obuna bo'ldingiz!")
+        # Get user
+        result = await db.execute(select(User).where(User.telegram_id == callback.from_user.id))
+        user = result.scalar_one_or_none()
+        await callback.message.answer(f"Konkurs platformasiga xush kelibsiz, {callback.from_user.first_name}! 🚀\nSizning balingiz: {user.score if user else 0} ball", reply_markup=main_menu_kb())
+        await callback.message.delete()
+    else:
+        await callback.answer("❌ Siz hali barcha kanallarga a'zo bo'lmagansiz!", show_alert=True)
 
 def main_menu_kb():
     buttons = [
