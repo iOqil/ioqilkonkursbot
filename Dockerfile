@@ -1,23 +1,22 @@
-FROM php:8.2-apache
-
-# Install PDO MySQL and Curl extensions
-RUN apt-get update && apt-get install -y \
-    libcurl4-openssl-dev \
-    pkg-config \
-    libssl-dev \
-    && docker-php-ext-install pdo pdo_mysql curl \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /app
+
+# Install system dependencies if any
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY . .
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+# Expose FastAPI port
+EXPOSE 8000
 
-# Update Apache config for directory access if needed
-# (Standard apache image usually has these set correctly for /var/www/html)
-
-EXPOSE 80
+# Run the application
+CMD ["python", "main.py"]
