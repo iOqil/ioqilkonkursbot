@@ -14,7 +14,11 @@ class Database
     private function __construct()
     {
         $config = require __DIR__ . '/../../config/database.php';
-        $dsn = "mysql:host={$config['host']};dbname={$config['db']};charset={$config['charset']}";
+        $hostParts = explode(':', $config['host']);
+        $host = $hostParts[0];
+        $port = isset($hostParts[1]) ? ";port={$hostParts[1]}" : "";
+
+        $dsn = "mysql:host={$host}{$port};dbname={$config['db']};charset={$config['charset']}";
 
         try {
             $this->pdo = new PDO($dsn, $config['user'], $config['pass'], $config['options']);
