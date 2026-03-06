@@ -31,7 +31,7 @@ dp.include_router(referral.router)
 from fastapi.staticfiles import StaticFiles
 from web.api.routes import router as web_router
 
-app = FastAPI(title="Contest Platform API")
+app = FastAPI(title="Konkurs platformasi API'si")
 app.mount("/static", StaticFiles(directory="web/static"), name="static")
 app.include_router(web_router, prefix="/web")
 
@@ -44,7 +44,7 @@ async def main():
     config = uvicorn.Config(app, host="0.0.0.0", port=80, loop="asyncio")
     server = uvicorn.Server(config)
     
-    logging.info("Starting Bot and Web Server...")
+    logging.info("Bot va veb-server ishga tushirilmoqda...")
     
     # IMPORTANT: Delete webhook to avoid conflict with polling
     await bot.delete_webhook(drop_pending_updates=True)

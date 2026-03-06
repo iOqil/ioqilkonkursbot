@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>Admin Panel</h1>
+    <span class="score">{{ user_count }} Users</span>
+</div>
+
+<div class="card">
+    <h2>🧩 Yangi Viktorina Yaratish</h2>
+    <form action="/web/admin/quiz/create" method="POST"
+        style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+        <div>
+            <label>Savol:</label><br>
+            <textarea name="question" required
+                style="width: 100%; border-radius: 8px; padding: 10px; background: #0f172a; color: white; border: 1px solid #334155;"></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" name="option_a" placeholder="Variant A" required
+                style="padding: 10px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155;">
+            <input type="text" name="option_b" placeholder="Variant B" required
+                style="padding: 10px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155;">
+            <input type="text" name="option_c" placeholder="Variant C" required
+                style="padding: 10px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155;">
+            <input type="text" name="option_d" placeholder="Variant D" required
+                style="padding: 10px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155;">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label>To'g'ri javob:</label>
+            <select name="correct_option"
+                style="padding: 5px 10px; border-radius: 8px; background: #0f172a; color: white;">
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+            </select>
+            <label>Ball:</label>
+            <input type="number" name="points" value="10"
+                style="padding: 5px 10px; width: 60px; border-radius: 8px; background: #0f172a; color: white;">
+        </div>
+        <button type="submit"
+            style="background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer;">Viktorinani
+            saqlash</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📋 Mavjud Viktorinalar</h2>
+    <div style="margin-top: 15px;">
+        {% for quiz in quizzes %}
+        <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <strong>{{ quiz.question }}</strong><br>
+            <small style="color: var(--accent);">To'g'ri: {{ quiz.correct_option.upper() }} | Ball: {{ quiz.points
+                }}</small>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

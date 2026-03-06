@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 router = Router()
 
-@router.message(F.text == "🎁 Daily Check-in")
+@router.message(F.text == "🎁 Kundalik ro'yxatdan o'tish")
 async def cmd_checkin(message: types.Message, db: AsyncSession):
     user_id = message.from_user.id
     today = date.today()
@@ -14,7 +14,7 @@ async def cmd_checkin(message: types.Message, db: AsyncSession):
     # Check if already checked in today
     res = await db.execute(select(Checkin).where(Checkin.user_id == user_id, Checkin.checkin_date == today))
     if res.scalar_one_or_none():
-        return await message.answer("✅ You are already checked in for today! Come back tomorrow.")
+        return await message.answer("✅ Siz allaqachon bugungi kun uchun ro'yxatdan o'tgansiz! Ertaga qaytib keling.")
 
     # Get yesterday's checkin for streak
     yesterday = today - timedelta(days=1)
@@ -31,4 +31,4 @@ async def cmd_checkin(message: types.Message, db: AsyncSession):
     user.score += points
     await db.commit()
     
-    await message.answer(f"🎉 Check-in successful!\nPoints earned: <b>{points}</b>\nCurrent streak: <b>{streak}</b> days\nTotal score: <b>{user.score}</b> pts", parse_mode="HTML")
+    await message.answer(f"🎉 Ro'yxatdan o'tish muvaffaqiyatli bo'ldi!\nTopilgan ballar: <b>{points}</b>\nJoriy seriya: <b>{streak}</b> kun\nUmumiy ball: <b>{user.score}</b> ball", parse_mode="HTML")
