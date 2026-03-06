@@ -1,0 +1,10 @@
+.git
+.env
+.dockerignore
+Dockerfile
+docker-compose.yml
+node_modules
+vendor
+CouchDB
+.gemini
+brain
