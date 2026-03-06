@@ -73,5 +73,5 @@ def main_menu_kb():
     return types.ReplyKeyboardMarkup(keyboard=[
         [types.KeyboardButton(text="🎁 Daily Check-in"), types.KeyboardButton(text="🧩 Solve Quiz")],
         [types.KeyboardButton(text="🏆 Leaderboard"), types.KeyboardButton(text="👥 Referrals")],
-        [types.KeyboardButton(text="📱 Open Web App", web_app=types.WebAppInfo(url=settings.TELEGRAM_WEBHOOK_URL.replace('/bot/webhook.php', '/web/index')))]
+        [types.KeyboardButton(text="📱 Open Web App", web_app=types.WebAppInfo(url=f"{settings.TELEGRAM_WEBHOOK_URL.rstrip('/')}/web/"))]
     ], resize_keyboard=True)

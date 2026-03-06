@@ -7,6 +7,7 @@ from core.database import AsyncSessionLocal
 from bot.handlers import start, leaderboard, checkin, quiz, referral
 from bot.middlewares.db import DbSessionMiddleware
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 import uvicorn
 
 # 1. Setup Logging
@@ -36,11 +37,11 @@ app.include_router(web_router, prefix="/web")
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "service": "Python Contest Platform"}
+    return RedirectResponse(url="/web/")
 
 async def main():
-    # Setup Uvicorn for FastAPI
-    config = uvicorn.Config(app, host="0.0.0.0", port=8000, loop="asyncio")
+    # Setup Uvicorn for FastAPI on port 80
+    config = uvicorn.Config(app, host="0.0.0.0", port=80, loop="asyncio")
     server = uvicorn.Server(config)
     
     logging.info("Starting Bot and Web Server...")
