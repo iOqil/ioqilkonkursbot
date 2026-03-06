@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="text-align: center; border-color: #ef4444;">
+    <h1 style="color: #ef4444;">⛔ Kirish taqiqlangan</h1>
+    <p>{{ message }}</p>
+    <button onclick="webapp.close()"
+        style="background: #334155; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 10px; cursor: pointer;">Yopish</button>
+</div>
+{% endblock %}

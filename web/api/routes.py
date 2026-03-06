@@ -6,6 +6,8 @@ from sqlalchemy import select, desc
 from core.database import get_db
 from core.models import User, Quiz, Season
 
+from core.security import verify_init_data, is_admin
+
 router = APIRouter()
 templates = Jinja2Templates(directory="web/templates")
 
@@ -16,7 +18,22 @@ async def index(request: Request, db: AsyncSession = Depends(get_db)):
     return templates.TemplateResponse("index.html", {"request": request, "top_users": top_users})
 
 @router.get("/admin")
-async def admin_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
+async def admin_dashboard(
+    request: Request, 
+    _auth: str = None, 
+    db: AsyncSession = Depends(get_db)
+):
+    if not _auth:
+        return templates.TemplateResponse("loader.html", {"request": request})
+
+    # Verify Telegram WebApp Data
+    user_data = verify_init_data(_auth)
+    if not user_data or not is_admin(user_data.get('id')):
+        return templates.TemplateResponse("error.html", {
+            "request": request, 
+            "message": "Kirish taqiqlangan! Siz admin emassiz."
+        })
+
     user_count_res = await db.execute(select(User).order_by(desc(User.id)).limit(1))
     user_count = user_count_res.scalar() or 0
     
@@ -26,11 +43,13 @@ async def admin_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
     return templates.TemplateResponse("admin.html", {
         "request": request, 
         "user_count": user_count, 
-        "quizzes": quizzes
+        "quizzes": quizzes,
+        "_auth": _auth
     })
 
 @router.post("/admin/quiz/create")
 async def create_quiz(
+    _auth: str = Form(...),
     question: str = Form(...),
     option_a: str = Form(...),
     option_b: str = Form(...),
@@ -40,6 +59,11 @@ async def create_quiz(
     points: int = Form(10),
     db: AsyncSession = Depends(get_db)
 ):
+    # Verify Admin for POST too
+    user_data = verify_init_data(_auth)
+    if not user_data or not is_admin(user_data.get('id')):
+        return RedirectResponse(url="/web/", status_code=303)
+
     new_quiz = Quiz(
         question=question,
         option_a=option_a,
@@ -51,4 +75,4 @@ async def create_quiz(
     )
     db.add(new_quiz)
     await db.commit()
-    return RedirectResponse(url="/web/admin", status_code=303)
+    return RedirectResponse(url=f"/web/admin?_auth={_auth}", status_code=303)
