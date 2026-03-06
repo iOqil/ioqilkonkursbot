@@ -69,18 +69,19 @@ async def cmd_start(message: types.Message, db: AsyncSession, bot):
 
     # 3. Add Admin Panel button if user is admin
     kb = main_menu_kb(user_id)
-    await message.answer(f"Konkurs platformasiga xush kelibsiz, {message.from_user.first_name}! 🚀\nSizning balingiz: {user.score} ball", reply_markup=kb)
+    # 3. Handle Admin Panel
+    if user_id in settings.admin_list:
+        admin_kb = types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="⚙️ Admin Panel (Boshqaruv)", web_app=types.WebAppInfo(url=f"{settings.TELEGRAM_WEBHOOK_URL.rstrip('/')}/web/admin"))]
+        ])
+        await message.answer(f"Siz adminsiz! Boshqaruv paneliga kirishingiz mumkin:", reply_markup=admin_kb)
 
-def main_menu_kb(user_id: int):
+    await message.answer(f"Konkurs platformasiga xush kelibsiz, {message.from_user.first_name}! 🚀\nSizning balingiz: {user.score} ball", reply_markup=main_menu_kb())
+
+def main_menu_kb():
     buttons = [
         [types.KeyboardButton(text="🎁 Kundalik ro'yxatdan o'tish"), types.KeyboardButton(text="🧩 Viktorina")],
         [types.KeyboardButton(text="🏆 Yetakchilar jadvali"), types.KeyboardButton(text="👥 Taklif qilish")],
         [types.KeyboardButton(text="📱 Web ilovani ochish", web_app=types.WebAppInfo(url=f"{settings.TELEGRAM_WEBHOOK_URL.rstrip('/')}/web/"))]
     ]
-    
-    # Add Admin Panel button if user_id in settings.admin_list
-    if user_id in settings.admin_list:
-        # We append a new row for Admin Panel
-        buttons.append([types.KeyboardButton(text="⚙️ Admin Panel", web_app=types.WebAppInfo(url=f"{settings.TELEGRAM_WEBHOOK_URL.rstrip('/')}/web/admin"))])
-        
     return types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
