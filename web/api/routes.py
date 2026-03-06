@@ -23,17 +23,26 @@ async def admin_dashboard(
     tg_auth: str = None, 
     db: AsyncSession = Depends(get_db)
 ):
-    if not tg_auth:
-        return templates.TemplateResponse("loader.html", {"request": request})
-
-    # Verify Telegram WebApp Data
-    user_data = verify_init_data(tg_auth)
-    if not user_data or not is_admin(user_data.get('id')):
+    # 1. Check if already has a session cookie
+    session_admin_id = request.cookies.get("admin_session")
+    
+    user_id = None
+    if session_admin_id and is_admin(int(session_admin_id)):
+        user_id = int(session_admin_id)
+    elif tg_auth:
+        user_data = verify_init_data(tg_auth)
+        if user_data and is_admin(user_data.get('id')):
+            user_id = user_data.get('id')
+    
+    if not user_id:
+        if not tg_auth:
+            return templates.TemplateResponse("loader.html", {"request": request})
         return templates.TemplateResponse("error.html", {
             "request": request, 
             "message": "Kirish taqiqlangan! Siz admin emassiz."
         })
 
+    # Prepare response
     from sqlalchemy import func
     user_count_res = await db.execute(select(func.count(User.id)))
     user_count = user_count_res.scalar() or 0
@@ -41,16 +50,22 @@ async def admin_dashboard(
     quiz_res = await db.execute(select(Quiz).order_by(desc(Quiz.id)))
     quizzes = quiz_res.scalars().all()
     
-    return templates.TemplateResponse("admin.html", {
+    response = templates.TemplateResponse("admin.html", {
         "request": request, 
         "user_count": user_count, 
         "quizzes": quizzes,
-        "tg_auth": tg_auth
+        "tg_auth": tg_auth or ""
     })
+    
+    # Set session cookie if verified via tg_auth
+    if tg_auth and user_id:
+        response.set_cookie(key="admin_session", value=str(user_id), httponly=True, max_age=3600*24)
+        
+    return response
 
 @router.post("/admin/quiz/create")
 async def create_quiz(
-    tg_auth: str = Form(...),
+    request: Request,
     question: str = Form(...),
     option_a: str = Form(...),
     option_b: str = Form(...),
@@ -60,10 +75,10 @@ async def create_quiz(
     points: int = Form(10),
     db: AsyncSession = Depends(get_db)
 ):
-    # Verify Admin for POST too
-    user_data = verify_init_data(tg_auth)
-    if not user_data or not is_admin(user_data.get('id')):
-        return RedirectResponse(url="/web/", status_code=303)
+    # Verification via cookie
+    session_admin_id = request.cookies.get("admin_session")
+    if not session_admin_id or not is_admin(int(session_admin_id)):
+        return RedirectResponse(url="/web/admin", status_code=303)
 
     new_quiz = Quiz(
         question=question,
@@ -76,4 +91,5 @@ async def create_quiz(
     )
     db.add(new_quiz)
     await db.commit()
-    return RedirectResponse(url=f"/web/admin?tg_auth={tg_auth}", status_code=303)
+    # Redirect back to admin without tokens in URL
+    return RedirectResponse(url="/web/admin", status_code=303)
