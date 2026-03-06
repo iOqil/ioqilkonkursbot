@@ -1,16 +1,11 @@
 FROM php:8.2-apache
 
-# Install PDO MySQL extension
-RUN docker-php-ext-install pdo pdo_mysql
-
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
-
-# Install curl and other dependencies if needed
+# Install PDO MySQL and Curl extensions
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     pkg-config \
     libssl-dev \
+    && docker-php-ext-install pdo pdo_mysql curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory

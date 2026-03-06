@@ -33,6 +33,13 @@ class Env
     {
         $value = getenv($key);
         if ($value === false) {
+            // Fallback for some server environments
+            if (isset($_SERVER[$key])) {
+                return $_SERVER[$key];
+            }
+            if (isset($_ENV[$key])) {
+                return $_ENV[$key];
+            }
             return $default;
         }
         return $value;
