@@ -1,6 +1,5 @@
 import hmac
 import hashlib
-import parse
 from operator import itemgetter
 from urllib.parse import parse_qsl
 from .config import settings
