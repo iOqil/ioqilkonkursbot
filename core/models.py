@@ -64,3 +64,11 @@ class Code(Base):
     max_uses: Mapped[int] = mapped_column(Integer, default=0)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.telegram_id"), index=True)
+    quiz_id: Mapped[int] = mapped_column(Integer, ForeignKey("quizzes.id"), index=True)
+    is_correct: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    __table_args__ = (UniqueConstraint('user_id', 'quiz_id', name='unique_user_quiz'),)
