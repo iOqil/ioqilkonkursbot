@@ -3,16 +3,23 @@ from core.config import settings
 
 router = Router()
 
-@router.message(F.text == "👥 Referrals")
+@router.message(F.text == "👥 Taklif qilish")
 async def cmd_referrals(message: types.Message):
     bot_info = await message.bot.get_me()
     ref_link = f"https://t.me/{bot_info.username}?start={message.from_user.id}"
     
     text = (
-        "👥 <b>Referral Program</b>\n\n"
-        "Invite your friends and earn <b>50 pts</b> for each referral!\n"
-        "<i>Note: Referral limit is 10 friends per day.</i>\n\n"
-        f"Your referral link:\n<code>{ref_link}</code>"
+        "👥 <b>Taklif qilish</b>\n\n"
+        "Do'stlaringizni taklif qiling va har bir do'st uchun <b>50 ball</b> qozoning!\n"
+        "<i>Eslatma: Do'stlarni taklif qilish limiti kuniga 10 ta.</i>\n\n"
+        f"Sizning taklif havolangiz:\n<code>{ref_link}</code>"
     )
+
+    share_text = "🚀 Konkursda ishtirok eting va sovg'alar yuting!"
+    share_url = f"https://t.me/share/url?url={ref_link}&text={share_text}"
     
-    await message.answer(text, parse_mode="HTML")
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="🚀 Do'stlarga yuborish", url=share_url)]
+    ])
+    
+    await message.answer(text, reply_markup=kb, parse_mode="HTML")
