@@ -34,7 +34,8 @@ async def admin_dashboard(
             "message": "Kirish taqiqlangan! Siz admin emassiz."
         })
 
-    user_count_res = await db.execute(select(User).order_by(desc(User.id)).limit(1))
+    from sqlalchemy import func
+    user_count_res = await db.execute(select(func.count(User.id)))
     user_count = user_count_res.scalar() or 0
     
     quiz_res = await db.execute(select(Quiz).order_by(desc(Quiz.id)))
