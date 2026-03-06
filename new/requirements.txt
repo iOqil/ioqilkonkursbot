@@ -1,0 +1,10 @@
+aiogram>=3.0.0
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+aiomysql
+pydantic-settings
+jinja2
+python-multipart
+python-dotenv
+requests
