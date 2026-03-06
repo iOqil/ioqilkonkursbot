@@ -45,6 +45,9 @@ async def main():
     
     logging.info("Starting Bot and Web Server...")
     
+    # IMPORTANT: Delete webhook to avoid conflict with polling
+    await bot.delete_webhook(drop_pending_updates=True)
+    
     # Run both Bot Polling and Web Server
     await asyncio.gather(
         dp.start_polling(bot),
